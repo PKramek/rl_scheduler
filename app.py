@@ -100,7 +100,7 @@ def schedule_training(current_user):
     filename = get_configuration_file_name(data)
     path = f"{configurations_dir}/{filename}.json"
 
-    with open(path, 'w') as f:
+    with open(path, 'x') as f:
         json.dump(data, f)
 
     return jsonify({'message': 'Configuration scheduled for training'})

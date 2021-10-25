@@ -14,7 +14,7 @@ def check_other_algorithms_config(data: Dict) -> Tuple[bool, str]:
 
 def required_fields(data: Dict) -> Tuple[bool, str]:
     assert isinstance(data, dict)
-    if ("algorithm", "algorithm_config") != set(data.keys()):
+    if {"algorithm", "algorithm_config"} != set(data.keys()):
         return False, "Invalid fields"
 
     if data["algorithm"] in ("acer", "acerac"):
