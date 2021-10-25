@@ -2,8 +2,6 @@ from datetime import datetime
 from typing import Dict, Tuple
 
 
-# datetime object containing current date and time
-
 # TODO
 def check_acer_acerac_config(data: Dict) -> Tuple[bool, str]:
     return True, ""
