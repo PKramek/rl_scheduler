@@ -5,9 +5,9 @@ from functools import wraps
 
 import jwt
 from flask import Flask, request, jsonify, make_response
-from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from model import db
 from utils.auth_util import Auth
 from utils.utils import required_fields, get_configuration_file_name
 
@@ -20,16 +20,6 @@ app.logger.info(f"SECRET_KEY: {app.config['SECRET_KEY']}")
 app.logger.info(f"SQLALCHEMY_DATABASE_URI: {app.config['SQLALCHEMY_DATABASE_URI']}")
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-
-db = SQLAlchemy(app)
-
-
-class Users(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    public_id = db.Column(db.String(50))
-    name = db.Column(db.String(50))
-    password = db.Column(db.String(100))
-    admin = db.Column(db.Boolean)
 
 
 def token_required(f):
@@ -124,4 +114,5 @@ def get_all_not_run_configurations(current_user):
 
 
 if __name__ == '__main__':
+    db.init_app(app)
     app.run(debug=True)
