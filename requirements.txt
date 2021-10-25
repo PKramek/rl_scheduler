@@ -2,5 +2,5 @@ Flask
 datetime
 uuid
 Flask-SQLAlchemy
-PyJWT
+pyJWT
 psycopg2-binary
