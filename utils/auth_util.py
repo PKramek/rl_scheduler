@@ -12,6 +12,7 @@ class Auth:
         token = jwt.encode(
             {'public_id': public_id,
              'exp': datetime.utcnow() + timedelta(minutes=30)},
-            Constants.SECRET_KEY)
+            Constants.SECRET_KEY,
+            algorithm="HS256")
 
         return token

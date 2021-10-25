@@ -9,7 +9,6 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from utils.auth_util import Auth
-from utils.constants import Constants
 from utils.utils import required_fields, get_configuration_file_name
 
 app = Flask(__name__)
@@ -45,7 +44,7 @@ def token_required(f):
             return jsonify({'message': 'a valid token is missing'})
 
         try:
-            data = jwt.decode(token, app.config['SECRET_KEY'])
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
             print(f"public_id={data['public_id']}")
             current_user = Users.query.filter_by(public_id=data['public_id']).first()
             print(current_user)
@@ -125,5 +124,4 @@ def get_all_not_run_configurations(current_user):
 
 
 if __name__ == '__main__':
-    print(f"Secret key: {Constants.SECRET_KEY}")
     app.run(debug=True)
