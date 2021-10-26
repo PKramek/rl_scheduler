@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 import jwt
 
-from utils.constants import Constants
+from src.utils.constants import Constants
 
 
 class Auth:

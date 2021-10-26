@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Dict, Tuple, List
 
-from utils.acer_acerac_parsers import get_acer_acerac_parser
+from src.utils.acer_acerac_parsers import get_acer_acerac_parser
 
 
 def get_args_as_list_of_strings(data: Dict) -> List[str]:
