@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 from typing import Dict, Tuple, List
 
@@ -73,7 +74,19 @@ def get_configuration_file_name(data: Dict) -> str:
 
 
 def get_configuration_absolute_path(filename: str) -> str:
+    assert isinstance(filename, str), "filename parameter must be a string"
+
     configurations_dir = Constants.FLASK_CONFIGURATIONS_DIRECTORY
     path = f"{configurations_dir}/{filename}"
 
     return path
+
+
+def get_all_files_with_extension_in_directory(directory: str, extension: str = '.json'):
+    assert isinstance(directory, str), "directory parameter must be a string"
+    assert isinstance(extension, str), "extension parameter must be a string"
+
+    all_files = os.listdir(directory)
+    files_with_extension = [file for file in all_files if file[-(len(extension)):] == extension]
+
+    return files_with_extension

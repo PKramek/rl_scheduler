@@ -1,5 +1,4 @@
 import json
-import os
 import uuid
 from functools import wraps
 
@@ -10,7 +9,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from src import app, db, Constants
 from src.models import Users
 from src.utils.auth_util import Auth
-from src.utils.utils import config_correct, get_configuration_file_name, get_configuration_absolute_path
+from src.utils.utils import config_correct, get_configuration_file_name, get_configuration_absolute_path, \
+    get_all_files_with_extension_in_directory
 
 
 def token_required(f):
@@ -63,7 +63,7 @@ def login_user():
     return make_response(jsonify({'Message': "Login required"}), 401)
 
 
-@app.route('/schedule_training', methods=['POST'])
+@app.route('/schedule', methods=['POST'])
 @token_required
 def schedule_training(current_user):
     data = request.get_json()
@@ -84,10 +84,10 @@ def schedule_training(current_user):
     return make_response(jsonify({'message': f'Configuration created: {filename}'}), 201)
 
 
-@app.route('/schedule_trainings', methods=['GET'])
+@app.route('/scheduled', methods=['GET'])
 @token_required
 def get_all_not_run_configurations(current_user):
     configurations_dir = Constants.FLASK_CONFIGURATIONS_DIRECTORY
-    files = os.listdir(configurations_dir)
+    json_files = get_all_files_with_extension_in_directory(configurations_dir, '.json')
 
-    return make_response(jsonify({"scheduled trainings": files}), 200)
+    return make_response(jsonify({"scheduled trainings": json_files}), 200)
