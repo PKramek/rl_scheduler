@@ -109,10 +109,9 @@ def schedule_training(current_user):
 @token_required
 def get_all_not_run_configurations(current_user):
     configurations_dir = os.environ.get('FLASK_CONFIGURATIONS_DIRECTORY')
-    app.logger.info(f"configurations_dir: {configurations_dir}")
     files = os.listdir(configurations_dir)
 
-    return jsonify({"scheduled trainings": files}, 200)
+    return make_response(jsonify({"scheduled trainings": files}), 200)
 
 
 if __name__ == '__main__':
