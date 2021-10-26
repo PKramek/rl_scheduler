@@ -2,6 +2,7 @@ import argparse
 
 
 class ArgumentParserWithoutSystemExit(argparse.ArgumentParser):
+    # This is a wrapper class, that allows to catch error messages from argparse and prevents app closure
 
     def __init__(self, *args, **kwargs):
         super(ArgumentParserWithoutSystemExit, self).__init__(*args, **kwargs)

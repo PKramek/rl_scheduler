@@ -7,10 +7,10 @@ import jwt
 from flask import request, make_response, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from src import app, db
+from src import app, db, Constants
 from src.models import Users
 from src.utils.auth_util import Auth
-from src.utils.utils import required_fields, get_configuration_file_name
+from src.utils.utils import config_correct, get_configuration_file_name, get_configuration_absolute_path
 
 
 def token_required(f):
@@ -26,11 +26,8 @@ def token_required(f):
 
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
-            print(f"public_id={data['public_id']}")
             current_user = Users.query.filter_by(public_id=data['public_id']).first()
-            print(current_user)
-        except Exception as e:
-            print(e)
+        except Exception:  # TODO find right exceptions
             return make_response(jsonify({'message': 'token is invalid'}), 401)
 
         return f(current_user, *args, **kwargs)
@@ -42,10 +39,6 @@ def token_required(f):
 def signup_user():
     data = request.get_json()
     hashed_password = generate_password_hash(data['password'], method='sha256')
-
-    uuid_test = uuid.uuid4()
-    print(f"{str(uuid_test)}: lengths = {len(str(uuid_test))}")
-    print(f"{str(hashed_password)}: lengths = {len(str(hashed_password))}")
 
     new_user = Users(public_id=str(uuid.uuid4()), name=data['name'], password=hashed_password, admin=True)
     db.session.add(new_user)
@@ -75,28 +68,26 @@ def login_user():
 def schedule_training(current_user):
     data = request.get_json()
 
-    is_data_correct, response_message = required_fields(data)
+    is_data_correct, response_message = config_correct(data)
 
     if not is_data_correct:
         return make_response(
             jsonify({'Message': response_message}), 418
         )
 
-    configurations_dir = os.environ.get('FLASK_CONFIGURATIONS_DIRECTORY')
-    app.logger.info(f"configurations_dir: {configurations_dir}")
     filename = get_configuration_file_name(data)
-    path = f"{configurations_dir}/{filename}.json"
+    path = get_configuration_absolute_path(filename)
 
     with open(path, 'x') as f:
         json.dump(data, f)
 
-    return make_response(jsonify({'message': 'Configuration scheduled for training'}), 201)
+    return make_response(jsonify({'message': f'Configuration created: {filename}'}), 201)
 
 
 @app.route('/schedule_trainings', methods=['GET'])
 @token_required
 def get_all_not_run_configurations(current_user):
-    configurations_dir = os.environ.get('FLASK_CONFIGURATIONS_DIRECTORY')
+    configurations_dir = Constants.FLASK_CONFIGURATIONS_DIRECTORY
     files = os.listdir(configurations_dir)
 
     return make_response(jsonify({"scheduled trainings": files}), 200)
