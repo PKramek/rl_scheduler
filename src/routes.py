@@ -4,24 +4,13 @@ import uuid
 from functools import wraps
 
 import jwt
-from flask import Flask, request, jsonify, make_response
+from flask import request, make_response, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from model import db
-from model.users import Users
-from utils.auth_util import Auth
-from utils.utils import required_fields, get_configuration_file_name
-
-app = Flask(__name__)
-
-app.config['SECRET_KEY'] = os.environ.get("FLASK_SECRET_KEY")
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("SQLALCHEMY_DATABASE_URI")
-
-app.logger.info(f"SECRET_KEY: {app.config['SECRET_KEY']}")
-app.logger.info(f"SQLALCHEMY_DATABASE_URI: {app.config['SQLALCHEMY_DATABASE_URI']}")
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-db.init_app(app)
+from src import app, db
+from src.models import Users
+from src.utils.auth_util import Auth
+from src.utils.utils import required_fields, get_configuration_file_name
 
 
 def token_required(f):
@@ -111,7 +100,3 @@ def get_all_not_run_configurations(current_user):
     files = os.listdir(configurations_dir)
 
     return make_response(jsonify({"scheduled trainings": files}), 200)
-
-
-if __name__ == '__main__':
-    app.run(debug=True)

@@ -1,4 +1,4 @@
-from src.model import db
+from src import db
 
 
 class Users(db.Model):
