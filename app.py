@@ -34,7 +34,7 @@ def token_required(f):
             token = request.headers['x-access-tokens']
 
         if not token:
-            return jsonify({'message': 'a valid token is missing'})
+            return make_response(jsonify({'message': 'a valid token is missing'}), 401)
 
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
@@ -43,7 +43,7 @@ def token_required(f):
             print(current_user)
         except Exception as e:
             print(e)
-            return jsonify({'message': 'token is invalid'})
+            return make_response(jsonify({'message': 'token is invalid'}), 401)
 
         return f(current_user, *args, **kwargs)
 
@@ -63,7 +63,7 @@ def signup_user():
     db.session.add(new_user)
     db.session.commit()
 
-    return jsonify({'message': 'registered successfully'})
+    return jsonify({'message': 'registered successfully'}, 201)
 
 
 @app.route('/login', methods=['POST', 'GET'])
@@ -71,15 +71,15 @@ def login_user():
     auth = request.authorization
 
     if not auth or not auth.username or not auth.password:
-        return make_response('could not verify', 401, {'WWW.Authentication': 'Basic realm: "login required"'})
+        return make_response(jsonify({'Message': "Could not verify"}), 401)
 
     user = Users.query.filter_by(name=auth.username).first()
 
     if check_password_hash(user.password, auth.password):
         token = Auth.encode_auth_token(user.public_id)
-        return jsonify({'token': token})
+        return make_response(jsonify({'token': token}), 200)
 
-    return make_response('Login required', 401, {'Message': "Login required"})
+    return make_response(jsonify({'Message': "Login required"}), 401)
 
 
 @app.route('/schedule_training', methods=['POST'])
@@ -91,8 +91,7 @@ def schedule_training(current_user):
 
     if not is_data_correct:
         return make_response(
-            'Data incomplete', 418,
-            {'Message': response_message}
+            jsonify({'Message': response_message}), 418
         )
 
     configurations_dir = os.environ.get('FLASK_CONFIGURATIONS_DIRECTORY')
@@ -103,7 +102,7 @@ def schedule_training(current_user):
     with open(path, 'x') as f:
         json.dump(data, f)
 
-    return jsonify({'message': 'Configuration scheduled for training'})
+    return make_response(jsonify({'message': 'Configuration scheduled for training'}), 201)
 
 
 @app.route('/schedule_trainings', methods=['GET'])
@@ -113,7 +112,7 @@ def get_all_not_run_configurations(current_user):
     app.logger.info(f"configurations_dir: {configurations_dir}")
     files = os.listdir(configurations_dir)
 
-    return jsonify({"scheduled trainings": files})
+    return jsonify({"scheduled trainings": files}, 200)
 
 
 if __name__ == '__main__':
