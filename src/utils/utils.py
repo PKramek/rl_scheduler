@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Dict, Tuple, List
 
 from src import Constants
-from src.utils.acer_acerac_parsers import get_acer_acerac_parser
+from src.utils.data_validators import get_acer_acerac_parser
 
 
 def config_correct(data: Dict) -> Tuple[bool, str]:
