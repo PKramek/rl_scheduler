@@ -87,7 +87,7 @@ def schedule_training(current_user):
 @app.route('/scheduled', methods=['GET'])
 @token_required
 def get_all_not_run_configurations(current_user):
-    configurations_dir = Constants.FLASK_CONFIGURATIONS_DIRECTORY
+    configurations_dir = Constants.AIRFLOW_RL_CONFIGURATIONS
     json_files = get_all_files_with_extension_in_directory(configurations_dir, '.json')
 
     return make_response(jsonify({"scheduled trainings": json_files}), 200)

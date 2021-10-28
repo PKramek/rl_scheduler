@@ -76,7 +76,7 @@ def get_configuration_file_name(data: Dict) -> str:
 def get_configuration_absolute_path(filename: str) -> str:
     assert isinstance(filename, str), "filename parameter must be a string"
 
-    configurations_dir = Constants.FLASK_CONFIGURATIONS_DIRECTORY
+    configurations_dir = Constants.AIRFLOW_RL_CONFIGURATIONS
     path = f"{configurations_dir}/{filename}"
 
     return path
