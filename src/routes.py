@@ -1,8 +1,9 @@
 import json
-import jwt
 import uuid
-from flask import request, make_response, jsonify
 from functools import wraps
+
+import jwt
+from flask import request, make_response, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from src import app, db, Constants
@@ -43,7 +44,7 @@ def signup_user():
     db.session.add(new_user)
     db.session.commit()
 
-    return jsonify({'message': 'registered successfully'}, 201)
+    return make_response(jsonify({'message': 'registered successfully'}), 201)
 
 
 @app.route('/login', methods=['POST', 'GET'])
@@ -55,13 +56,13 @@ def login_user():
 
     user = Users.query.filter_by(name=auth.username).first()
     if not user:
-        return make_response(jsonify({'Could not find user'}), 401)
+        return make_response(jsonify({"message": 'Could not find user'}), 401)
 
     if check_password_hash(user.password, auth.password):
         token = Auth.encode_auth_token(user.public_id)
-        return make_response(jsonify({'token': token}), 200)
+    return make_response(jsonify({'token': token}), 200)
 
-    return make_response(jsonify({'Wrong password': token}), 401)
+    return make_response(jsonify({"message": 'Wrong password'}), 401)
 
 
 @app.route('/schedule', methods=['POST'])
