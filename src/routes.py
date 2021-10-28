@@ -55,7 +55,7 @@ def login_user():
 
     user = Users.query.filter_by(name=auth.username).first()
     if not user:
-        return make_response(jsonify({'Could not find user': token}), 401)
+        return make_response(jsonify({'Could not find user'}), 401)
 
     if check_password_hash(user.password, auth.password):
         token = Auth.encode_auth_token(user.public_id)
