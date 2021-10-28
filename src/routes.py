@@ -1,9 +1,8 @@
 import json
-import uuid
-from functools import wraps
-
 import jwt
+import uuid
 from flask import request, make_response, jsonify
+from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from src import app, db, Constants
@@ -55,12 +54,14 @@ def login_user():
         return make_response(jsonify({'Message': "Could not verify"}), 401)
 
     user = Users.query.filter_by(name=auth.username).first()
+    if not user:
+        return make_response(jsonify({'Could not find user': token}), 401)
 
     if check_password_hash(user.password, auth.password):
         token = Auth.encode_auth_token(user.public_id)
         return make_response(jsonify({'token': token}), 200)
 
-    return make_response(jsonify({'Message': "Login required"}), 401)
+    return make_response(jsonify({'Wrong password': token}), 401)
 
 
 @app.route('/schedule', methods=['POST'])
