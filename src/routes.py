@@ -80,6 +80,7 @@ def schedule_training(current_user):
     filename = get_configuration_file_name(data)
     path = get_configuration_absolute_path(filename)
 
+    app.logger.info(f'Configuration will be saved in file: {path}')
     with open(path, 'x') as f:
         json.dump(data, f)
 
@@ -89,7 +90,7 @@ def schedule_training(current_user):
 @app.route('/scheduled', methods=['GET'])
 @token_required
 def get_all_not_run_configurations(current_user):
-    configurations_dir = Constants.AIRFLOW_RL_CONFIGURATIONS
+    configurations_dir = Constants.RL_CONFIGURATIONS
     json_files = get_all_files_with_extension_in_directory(configurations_dir, '.json')
 
     return make_response(jsonify({"scheduled trainings": json_files}), 200)
