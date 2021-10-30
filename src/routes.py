@@ -84,11 +84,6 @@ def schedule_training(current_user):
     with open(path, 'x') as f:
         json.dump(data, f)
 
-    # Test if tile exists
-    with open(path) as json_file:
-        data = json.load(json_file)
-        app.logger.error(f"file content: {data}")
-
     return make_response(jsonify({'message': f'Configuration created: {filename}'}), 201)
 
 
