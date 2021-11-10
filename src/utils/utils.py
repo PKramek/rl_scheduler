@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Dict, Tuple, List
 
 from src import Constants
-from src.utils.data_validators import get_acer_acerac_parser
+from src.utils.data_validators import get_acer_acerac_parser, get_other_algorithms_parser
 
 
 def config_correct(data: Dict) -> Tuple[bool, str]:
@@ -28,7 +28,7 @@ def check_algorithm_config(data: Dict) -> Tuple[bool, str]:
     if data['algorithm'] in {'acer', 'acerac'}:
         parser = get_acer_acerac_parser()
     else:
-        raise NotImplementedError()
+        parser = get_other_algorithms_parser()
 
     config_as_list = get_args_as_list_of_strings(data['algorithm_config'])
 
