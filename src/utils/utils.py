@@ -1,4 +1,6 @@
 import os
+import random
+import string
 from datetime import datetime
 from typing import Dict, Tuple, List
 
@@ -64,13 +66,19 @@ def get_args_as_list_of_strings(data: Dict) -> List[str]:
     return result
 
 
+def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
+
+
 def get_configuration_file_name(data: Dict) -> str:
     assert isinstance(data, dict) and "algorithm" in data.keys()
 
     now = datetime.now()
     dt_string = now.strftime("%d-%m-%Y_%H-%M-%S")
 
-    return f"{data['algorithm']}_{dt_string}.json"
+    random_id = id_generator()
+
+    return f"{data['algorithm']}_{random_id}_{dt_string}.json"
 
 
 def get_configuration_absolute_path(filename: str) -> str:
