@@ -70,6 +70,18 @@ def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
 
+def get_environment_name_from_data(data: Dict):
+    assert isinstance(data, dict) and "algorithm" in data.keys()
+
+    algorithm = data['algorithm']
+    if algorithm in {'acer', 'acerac'}:
+        key = 'env_name'
+    else:
+        key = 'env'
+
+    return data['algorithm_config'][key]
+
+
 def get_configuration_file_name(data: Dict) -> str:
     assert isinstance(data, dict) and "algorithm" in data.keys()
 
@@ -77,8 +89,9 @@ def get_configuration_file_name(data: Dict) -> str:
     dt_string = now.strftime("%d-%m-%Y_%H-%M-%S")
 
     random_id = id_generator()
+    env_name = get_environment_name_from_data(data)
 
-    return f"{data['algorithm']}_{random_id}_{dt_string}.json"
+    return f"{env_name}_{data['algorithm']}_{random_id}_{dt_string}.json"
 
 
 def get_configuration_absolute_path(filename: str) -> str:
