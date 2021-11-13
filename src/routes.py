@@ -7,6 +7,7 @@ from werkzeug.security import check_password_hash
 
 from src import app, Constants
 from src.models import Users
+from src.repository import AlgorithmRepository, TrainingResultsRepository
 from src.utils.auth_util import Auth
 from src.utils.utils import get_configuration_file_name, get_configuration_absolute_path, \
     get_all_files_with_extension_in_directory, all_required_config_fields, check_algorithm_config, \
@@ -125,3 +126,34 @@ def get_all_processing_runs(current_user):
     json_files = get_all_files_with_extension_in_directory(processing_directory, '.json')
 
     return make_response(jsonify({"Processing trainings": json_files}), 200)
+
+
+@app.route('/results', methods=['GET'])
+@token_required
+def get_all_results(current_user):
+    query_results = TrainingResultsRepository.get_all_results()
+
+    results = [result.to_dict() for result in query_results]
+    return make_response(jsonify({"All results": results}), 200)
+
+
+@app.route('/results/environment/<environment>', methods=['GET'])
+@token_required
+def get_results_for_environment(current_user, environment):
+    query_results = TrainingResultsRepository.get_results_for_environment(environment)
+
+    results = [result.to_dict() for result in query_results]
+    return make_response(jsonify({f"Results for {environment} environment": results}), 200)
+
+
+@app.route('/results/algorithm/<algorithm>', methods=['GET'])
+@token_required
+def get_results_for_algorithm(current_user, algorithm):
+    if algorithm not in Constants.KNOWN_ALGORITHMS:
+        make_response(jsonify({"Message": f"Unknown algorithm: {algorithm}"}), 400)
+
+    algorithm_id = AlgorithmRepository.get_algorithm_by_name(algorithm).id
+    query_results = TrainingResultsRepository.get_results_for_algorithm(algorithm_id)
+
+    results = [result.to_dict() for result in query_results]
+    return make_response(jsonify({f"Results for {algorithm} algorithm": results}), 200)

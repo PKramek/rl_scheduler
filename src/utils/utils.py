@@ -36,7 +36,6 @@ def check_algorithm_config(data: Dict) -> Tuple[bool, str]:
 def algorithm_known(algorithm: str) -> bool:
     return algorithm in Constants.KNOWN_ALGORITHMS
 
-
 def get_args_as_list_of_strings(data: Dict) -> List[str]:
     result = []
 
