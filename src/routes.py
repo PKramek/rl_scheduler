@@ -1,12 +1,11 @@
 import json
-import uuid
 from functools import wraps
 
 import jwt
 from flask import request, make_response, jsonify
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash
 
-from src import app, db, Constants
+from src import app, Constants
 from src.models import Users
 from src.utils.auth_util import Auth
 from src.utils.utils import config_correct, get_configuration_file_name, get_configuration_absolute_path, \
@@ -33,18 +32,6 @@ def token_required(f):
         return f(current_user, *args, **kwargs)
 
     return decorator
-
-
-@app.route('/register', methods=['POST'])
-def signup_user():
-    data = request.get_json()
-    hashed_password = generate_password_hash(data['password'], method='sha256')
-
-    new_user = Users(public_id=str(uuid.uuid4()), name=data['name'], password=hashed_password, admin=True)
-    db.session.add(new_user)
-    db.session.commit()
-
-    return make_response(jsonify({'message': 'registered successfully'}), 201)
 
 
 @app.route('/login', methods=['POST', 'GET'])
