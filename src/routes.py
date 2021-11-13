@@ -81,3 +81,33 @@ def get_all_not_run_configurations(current_user):
     json_files = get_all_files_with_extension_in_directory(configurations_dir, '.json')
 
     return make_response(jsonify({"scheduled trainings": json_files}), 200)
+
+
+@app.route('/failed', methods=['GET'])
+@token_required
+def get_all_failed_runs(current_user):
+    configurations_dir = Constants.RL_CONFIGURATIONS
+    error_directory = f"{configurations_dir}/{Constants.RL_CONFIGURATIONS_FAILED_SUBDIRECTORY}"
+    json_files = get_all_files_with_extension_in_directory(error_directory, '.json')
+
+    return make_response(jsonify({"Failed trainings": json_files}), 200)
+
+
+@app.route('/done', methods=['GET'])
+@token_required
+def get_all_done_runs(current_user):
+    configurations_dir = Constants.RL_CONFIGURATIONS
+    done_directory = f"{configurations_dir}/{Constants.RL_CONFIGURATIONS_DONE_SUBDIRECTORY}"
+    json_files = get_all_files_with_extension_in_directory(done_directory, '.json')
+
+    return make_response(jsonify({"Done trainings": json_files}), 200)
+
+
+@app.route('/processing', methods=['GET'])
+@token_required
+def get_all_done_runs(current_user):
+    configurations_dir = Constants.RL_CONFIGURATIONS
+    processing_directory = f"{configurations_dir}/{Constants.RL_CONFIGURATIONS_PROCESSING_SUBDIRECTORY}"
+    json_files = get_all_files_with_extension_in_directory(processing_directory, '.json')
+
+    return make_response(jsonify({"Processing trainings": json_files}), 200)
