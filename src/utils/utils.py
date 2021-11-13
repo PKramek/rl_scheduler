@@ -5,6 +5,8 @@ from datetime import datetime
 from typing import Dict, Tuple, List
 
 from src import Constants
+from src.models import TrainingResults
+from src.repository import AlgorithmRepository
 from src.utils.data_validators import get_acer_acerac_parser, get_other_algorithms_parser
 
 
@@ -35,6 +37,7 @@ def check_algorithm_config(data: Dict) -> Tuple[bool, str]:
 
 def algorithm_known(algorithm: str) -> bool:
     return algorithm in Constants.KNOWN_ALGORITHMS
+
 
 def get_args_as_list_of_strings(data: Dict) -> List[str]:
     result = []
@@ -119,3 +122,15 @@ def add_random_experiment_name(config: Dict) -> Dict:
         config['algorithm_config']['experiment_name'] = random_id
 
     return config
+
+
+def training_results_to_dict(training_results: TrainingResults):
+    return {
+        "result_id": training_results.result_id,
+        "best_mean_result": training_results.best_mean_result,
+        "results_subdirectory": training_results.results_subdirectory,
+        "environment": training_results.environment,
+        "algorithm_config": training_results.algorithm_config,
+        "date": training_results.date,
+        "algorithm": AlgorithmRepository.get_algorithm_by_id(training_results.algorithm).name
+    }
