@@ -8,19 +8,10 @@ from src import Constants
 from src.utils.data_validators import get_acer_acerac_parser, get_other_algorithms_parser
 
 
-def config_correct(data: Dict) -> Tuple[bool, str]:
-    assert isinstance(data, dict)
-
-    if not all_required_config_fields(data):
-        return False, f"Config must have fields: {Constants.REQUIRED_CONFIG_FIELDS}"
-
-    return check_algorithm_config(data)
-
-
-def all_required_config_fields(data: Dict) -> bool:
+def all_required_config_fields(data: Dict) -> Tuple[bool, str]:
     if Constants.REQUIRED_CONFIG_FIELDS != set(data.keys()):
-        return False
-    return True
+        return False, f"Config must have fields: {Constants.REQUIRED_CONFIG_FIELDS}"
+    return True, ''
 
 
 def check_algorithm_config(data: Dict) -> Tuple[bool, str]:
@@ -111,3 +102,21 @@ def get_all_files_with_extension_in_directory(directory: str, extension: str = '
     files_with_extension = [file for file in all_files if file[-(len(extension)):] == extension]
 
     return files_with_extension
+
+
+def add_utility_config_extensions(config: Dict) -> Dict:
+    assert isinstance(config, dict), "configuration must be a dictionary"
+    assert {"algorithm", "algorithm_config"} == set(config.keys())
+
+    if config['algorithm'] in {'acer', 'acerac'}:
+        config = add_random_experiment_name(config)
+
+    return config
+
+
+def add_random_experiment_name(config: Dict) -> Dict:
+    if "experiment_name" not in config['algorithm_config'].keys():
+        random_id = id_generator()
+        config['algorithm_config']['experiment_name'] = random_id
+
+    return config
