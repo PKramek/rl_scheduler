@@ -105,7 +105,7 @@ def get_all_done_runs(current_user):
 
 @app.route('/processing', methods=['GET'])
 @token_required
-def get_all_done_runs(current_user):
+def get_all_processing_runs(current_user):
     configurations_dir = Constants.RL_CONFIGURATIONS
     processing_directory = f"{configurations_dir}/{Constants.RL_CONFIGURATIONS_PROCESSING_SUBDIRECTORY}"
     json_files = get_all_files_with_extension_in_directory(processing_directory, '.json')
