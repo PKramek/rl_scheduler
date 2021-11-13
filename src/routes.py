@@ -47,7 +47,7 @@ def login_user():
 
     if check_password_hash(user.password, auth.password):
         token = Auth.encode_auth_token(user.public_id)
-    return make_response(jsonify({'token': token}), 200)
+        return make_response(jsonify({'token': token}), 200)
 
     return make_response(jsonify({"message": 'Wrong password'}), 401)
 
