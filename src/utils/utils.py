@@ -1,3 +1,4 @@
+import json
 import os
 import random
 import string
@@ -130,7 +131,7 @@ def training_results_to_dict(training_results: TrainingResults):
         "best_mean_result": training_results.best_mean_result,
         "results_subdirectory": training_results.results_subdirectory,
         "environment": training_results.environment,
-        "algorithm_config": training_results.algorithm_config,
+        "configuration": json.loads(training_results.algorithm_config),
         "date": training_results.date,
         "algorithm": AlgorithmRepository.get_algorithm_by_id(training_results.algorithm).name
     }
