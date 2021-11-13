@@ -11,7 +11,7 @@ from src.repository import AlgorithmRepository, TrainingResultsRepository
 from src.utils.auth_util import Auth
 from src.utils.utils import get_configuration_file_name, get_configuration_absolute_path, \
     get_all_files_with_extension_in_directory, all_required_config_fields, check_algorithm_config, \
-    add_utility_config_extensions
+    add_utility_config_extensions, training_results_to_dict
 
 
 def token_required(f):
@@ -133,7 +133,7 @@ def get_all_processing_runs(current_user):
 def get_all_results(current_user):
     query_results = TrainingResultsRepository.get_all_results()
 
-    results = [result.to_dict() for result in query_results]
+    results = [training_results_to_dict(result) for result in query_results]
     return make_response(jsonify({"All results": results}), 200)
 
 
@@ -142,7 +142,7 @@ def get_all_results(current_user):
 def get_results_for_environment(current_user, environment):
     query_results = TrainingResultsRepository.get_results_for_environment(environment)
 
-    results = [result.to_dict() for result in query_results]
+    results = [training_results_to_dict(result) for result in query_results]
     return make_response(jsonify({f"Results for {environment} environment": results}), 200)
 
 
@@ -155,5 +155,5 @@ def get_results_for_algorithm(current_user, algorithm):
     algorithm_id = AlgorithmRepository.get_algorithm_by_name(algorithm).id
     query_results = TrainingResultsRepository.get_results_for_algorithm(algorithm_id)
 
-    results = [result.to_dict() for result in query_results]
+    results = [training_results_to_dict(result) for result in query_results]
     return make_response(jsonify({f"Results for {algorithm} algorithm": results}), 200)

@@ -31,17 +31,6 @@ class TrainingResults(db.Model):
                 algorithm={self.algorithm}
                 )>"""
 
-    def to_dict(self):
-        return {
-            "result_id": self.result_id,
-            "best_mean_result": self.best_mean_result,
-            "results_subdirectory": self.results_subdirectory,
-            "environment": self.environment,
-            "algorithm_config": self.algorithm_config,
-            "date": self.date,
-            "algorithm": Algorithm.query.get(self.algorithm).name
-        }
-
 
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
