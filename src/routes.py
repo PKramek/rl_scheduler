@@ -8,8 +8,9 @@ from werkzeug.security import check_password_hash
 from src import app, Constants
 from src.models import Users
 from src.utils.auth_util import Auth
-from src.utils.utils import config_correct, get_configuration_file_name, get_configuration_absolute_path, \
-    get_all_files_with_extension_in_directory
+from src.utils.utils import get_configuration_file_name, get_configuration_absolute_path, \
+    get_all_files_with_extension_in_directory, all_required_config_fields, check_algorithm_config, \
+    add_utility_config_extensions
 
 
 def token_required(f):
@@ -57,7 +58,15 @@ def login_user():
 def schedule_training(current_user):
     data = request.get_json()
 
-    is_data_correct, response_message = config_correct(data)
+    all_required_fields, response_message = all_required_config_fields(data)
+    if not all_required_fields:
+        return make_response(
+            jsonify({'Message': response_message}), 418
+        )
+
+    data = add_utility_config_extensions(data)
+
+    is_data_correct, response_message = check_algorithm_config(data)
 
     if not is_data_correct:
         return make_response(
@@ -71,7 +80,12 @@ def schedule_training(current_user):
     with open(path, 'x') as f:
         json.dump(data, f)
 
-    return make_response(jsonify({'message': f'Configuration created: {filename}'}), 201)
+    return make_response(jsonify(
+        {
+            'message': 'Configuration created',
+            'filename': filename,
+            'config': data
+        }, 201))
 
 
 @app.route('/scheduled', methods=['GET'])
