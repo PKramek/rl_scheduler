@@ -155,8 +155,12 @@ def get_other_algorithms_parser() -> ArgumentParserWithoutSystemExit:
                         default=1)
     parser.add_argument('--lambda', type=float, help='The GAE (lambda) parameter', required=False, default=0.95)
     parser.add_argument('--lr', type=float, help='Learning rate (used in PPO)', required=False, default=0.001)
-    parser.add_argument('--actor_lr', type=float, help='BaseActor learning rate', required=False, default=0.001)
-    parser.add_argument('--critic_lr', type=float, help='Critic learning rate', required=False, default=0.001)
+    parser.add_argument('--actor_learning_rate', type=float, help='BaseActor learning rate', required=False,
+                        default=0.0003)
+    parser.add_argument('--critic_learning_rate', type=float, help='Critic learning rate', required=False,
+                        default=0.0003)
+    parser.add_argument('--entropy_learning_rate', type=float, help='Critic learning rate', required=False,
+                        default=0.0003)
     parser.add_argument('--learning_starts', type=int, help='Experience replay warm start coefficient', default=10000)
     parser.add_argument('--tau', type=float, help='Target smoothing coefficient', required=False, default=0.005)
     parser.add_argument('--buffer_size', type=int, help='Memory buffer size', required=False, default=int(1e6))
