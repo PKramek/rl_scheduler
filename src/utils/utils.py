@@ -125,6 +125,7 @@ def add_random_experiment_name(config: Dict) -> Dict:
     return config
 
 
+# TODO move this function to TrainingResults
 def training_results_to_dict(training_results: TrainingResults):
     return {
         "result_id": training_results.result_id,

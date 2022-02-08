@@ -2,7 +2,17 @@ from functools import lru_cache
 
 from sqlalchemy import desc
 
-from src.models import Algorithm, TrainingResults
+from src.models import Algorithm, TrainingResults, Users
+
+
+class UsersRepository:
+    @staticmethod
+    def get_user_by_public_id(public_id: int):
+        return Users.query.filter_by(public_id=public_id).first()
+
+    @staticmethod
+    def get_user_by_username(username: str):
+        return Users.query.filter_by(name=username).first()
 
 
 class AlgorithmRepository:
