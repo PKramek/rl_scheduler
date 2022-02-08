@@ -1,38 +1,14 @@
 import json
-from functools import wraps
 
-import jwt
 from flask import request, make_response, jsonify
 from werkzeug.security import check_password_hash
 
 from src import app, Constants
 from src.repository import AlgorithmRepository, TrainingResultsRepository, UsersRepository
-from src.utils.auth_util import Auth
+from src.utils.auth_util import Auth, token_required
 from src.utils.utils import get_configuration_file_name, get_configuration_absolute_path, \
     get_all_files_with_extension_in_directory, all_required_config_fields, check_algorithm_config, \
     add_utility_config_extensions, training_results_to_dict
-
-
-def token_required(f):
-    @wraps(f)
-    def decorator(*args, **kwargs):
-        token = None
-
-        if 'x-access-tokens' in request.headers:
-            token = request.headers['x-access-tokens']
-
-        if not token:
-            return make_response(jsonify({'message': 'a valid token is missing'}), 401)
-
-        try:
-            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
-            current_user = UsersRepository.get_user_by_public_id(data['public_id'])
-        except Exception:  # TODO find right exceptions
-            return make_response(jsonify({'message': 'token is invalid'}), 401)
-
-        return f(current_user, *args, **kwargs)
-
-    return decorator
 
 
 @app.route('/login', methods=['POST', 'GET'])
