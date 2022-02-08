@@ -1,39 +1,14 @@
 import json
-from functools import wraps
 
-import jwt
 from flask import request, make_response, jsonify
 from werkzeug.security import check_password_hash
 
 from src import app, Constants
-from src.models import Users
-from src.repository import AlgorithmRepository, TrainingResultsRepository
-from src.utils.auth_util import Auth
+from src.repository import AlgorithmRepository, TrainingResultsRepository, UsersRepository
+from src.utils.authorization import Auth, token_required
 from src.utils.utils import get_configuration_file_name, get_configuration_absolute_path, \
     get_all_files_with_extension_in_directory, all_required_config_fields, check_algorithm_config, \
     add_utility_config_extensions, training_results_to_dict
-
-
-def token_required(f):
-    @wraps(f)
-    def decorator(*args, **kwargs):
-        token = None
-
-        if 'x-access-tokens' in request.headers:
-            token = request.headers['x-access-tokens']
-
-        if not token:
-            return make_response(jsonify({'message': 'a valid token is missing'}), 401)
-
-        try:
-            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
-            current_user = Users.query.filter_by(public_id=data['public_id']).first()
-        except Exception:  # TODO find right exceptions
-            return make_response(jsonify({'message': 'token is invalid'}), 401)
-
-        return f(current_user, *args, **kwargs)
-
-    return decorator
 
 
 @app.route('/login', methods=['POST', 'GET'])
@@ -43,7 +18,8 @@ def login_user():
     if not auth or not auth.username or not auth.password:
         return make_response(jsonify({'Message': "Could not verify"}), 401)
 
-    user = Users.query.filter_by(name=auth.username).first()
+    user = UsersRepository.get_user_by_username(auth.username)
+
     if not user:
         return make_response(jsonify({"message": 'Could not find user'}), 401)
 
@@ -131,19 +107,19 @@ def get_all_processing_runs(current_user):
 @app.route('/results', methods=['GET'])
 @token_required
 def get_all_results(current_user):
-    query_results = TrainingResultsRepository.get_all_results()
+    all_training_results = TrainingResultsRepository.get_all_results()
 
-    results = [training_results_to_dict(result) for result in query_results]
+    results = [training_results_to_dict(result) for result in all_training_results]
     return make_response(jsonify({"All results": results}), 200)
 
 
 @app.route('/results/environment/<environment>', methods=['GET'])
 @token_required
 def get_results_for_environment(current_user, environment):
-    query_results = TrainingResultsRepository.get_results_for_environment(environment)
+    results_for_environment = TrainingResultsRepository.get_results_for_environment(environment)
 
-    results = [training_results_to_dict(result) for result in query_results]
-    return make_response(jsonify({f"Results for {environment} environment": results}), 200)
+    results_as_dicts = [training_results_to_dict(result) for result in results_for_environment]
+    return make_response(jsonify({f"Results for {environment} environment": results_as_dicts}), 200)
 
 
 @app.route('/results/algorithm/<algorithm>', methods=['GET'])
@@ -153,7 +129,7 @@ def get_results_for_algorithm(current_user, algorithm):
         make_response(jsonify({"Message": f"Unknown algorithm: {algorithm}"}), 400)
 
     algorithm_id = AlgorithmRepository.get_algorithm_by_name(algorithm).id
-    query_results = TrainingResultsRepository.get_results_for_algorithm(algorithm_id)
+    results_for_algorithm = TrainingResultsRepository.get_results_for_algorithm(algorithm_id)
 
-    results = [training_results_to_dict(result) for result in query_results]
+    results = [training_results_to_dict(result) for result in results_for_algorithm]
     return make_response(jsonify({f"Results for {algorithm} algorithm": results}), 200)
