@@ -5,7 +5,7 @@ from werkzeug.security import check_password_hash
 
 from src import app, Constants
 from src.repository import AlgorithmRepository, TrainingResultsRepository, UsersRepository
-from src.utils.auth_util import Auth, token_required
+from src.utils.authorization import Auth, token_required
 from src.utils.utils import get_configuration_file_name, get_configuration_absolute_path, \
     get_all_files_with_extension_in_directory, all_required_config_fields, check_algorithm_config, \
     add_utility_config_extensions, training_results_to_dict
