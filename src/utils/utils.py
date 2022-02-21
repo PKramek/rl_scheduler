@@ -17,6 +17,12 @@ def all_required_config_fields(data: Dict) -> Tuple[bool, str]:
     return True, ''
 
 
+def config_from_request_has_all_required_fields(data: Dict) -> bool:
+    if Constants.REQUIRED_CONFIG_FIELDS != set(data.keys()):
+        return False
+    return True
+
+
 def check_algorithm_config(data: Dict) -> Tuple[bool, str]:
     if not algorithm_known(data['algorithm']):
         return False, f"Unknown algorithm: {data['algorithm']}"
@@ -57,7 +63,7 @@ def get_args_as_list_of_strings(data: Dict) -> List[str]:
     return result
 
 
-def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
+def generate_random_id(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
 
@@ -79,7 +85,7 @@ def get_configuration_file_name(data: Dict) -> str:
     now = datetime.now()
     dt_string = now.strftime("%d-%m-%Y_%H-%M-%S")
 
-    random_id = id_generator()
+    random_id = generate_random_id()
     env_name = get_environment_name_from_data(data)
 
     return f"{env_name}_{data['algorithm']}_{random_id}_{dt_string}.json"
@@ -116,10 +122,14 @@ def add_utility_config_extensions(config: Dict) -> Dict:
 
 def add_random_experiment_name(config: Dict) -> Dict:
     if "experiment_name" not in config['algorithm_config'].keys():
-        random_id = id_generator()
+        random_id = generate_random_id()
         config['algorithm_config']['experiment_name'] = random_id
 
     return config
+
+
+def get_current_time_as_string() -> str:
+    return datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
 
 
 # TODO move this function to TrainingResults
