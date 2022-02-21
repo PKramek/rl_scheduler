@@ -8,7 +8,7 @@ from typing import Dict, Tuple, List
 from src import Constants
 from src.models import TrainingResults
 from src.repository import AlgorithmRepository
-from src.utils.data_validators import get_acer_acerac_parser, get_other_algorithms_parser
+from src.utils.data_validators import ParserFactory
 
 
 def all_required_config_fields(data: Dict) -> Tuple[bool, str]:
@@ -21,10 +21,7 @@ def check_algorithm_config(data: Dict) -> Tuple[bool, str]:
     if not algorithm_known(data['algorithm']):
         return False, f"Unknown algorithm: {data['algorithm']}"
 
-    if data['algorithm'] in {'acer', 'acerac'}:
-        parser = get_acer_acerac_parser()
-    else:
-        parser = get_other_algorithms_parser()
+    parser = ParserFactory.get_parser(data['algorithm'])
 
     config_as_list = get_args_as_list_of_strings(data['algorithm_config'])
 

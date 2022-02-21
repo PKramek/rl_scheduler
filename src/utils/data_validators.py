@@ -376,4 +376,4 @@ class ParserFactory:
 
     @staticmethod
     def get_parser(algorithm: str) -> ArgumentParserWithoutSystemExit:
-        return ParserFactory.PARSER_ALGORITHM_MAPPING[algorithm]
+        return ParserFactory.PARSER_ALGORITHM_MAPPING[algorithm]()
