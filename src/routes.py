@@ -4,7 +4,6 @@ from flask import request, make_response, jsonify
 from werkzeug.security import check_password_hash
 
 from src import app, Constants
-from src.configuration import Configuration
 from src.repository import AlgorithmRepository, TrainingResultsRepository, UsersRepository
 from src.utils.authorization import Auth, token_required
 from src.utils.utils import get_configuration_file_name, get_configuration_absolute_path, \
@@ -31,46 +30,10 @@ def login_user():
     return make_response(jsonify({"message": 'Wrong password'}), 401)
 
 
-# @app.route('/schedule', methods=['POST'])
-# @token_required
-# def schedule_training(current_user):
-#     data = request.get_json()
-#
-#     all_required_fields, response_message = all_required_config_fields(data)
-#     if not all_required_fields:
-#         return make_response(
-#             jsonify({'Message': response_message}), 418
-#         )
-#
-#     data = add_utility_config_extensions(data)
-#
-#     is_data_correct, response_message = check_algorithm_config(data)
-#
-#     if not is_data_correct:
-#         return make_response(
-#             jsonify({'Message': response_message}), 418
-#         )
-#
-#     filename = get_configuration_file_name(data)
-#     path = get_configuration_absolute_path(filename)
-#
-#     app.logger.info(f'Configuration will be saved in file: {path}')
-#     with open(path, 'x') as f:
-#         json.dump(data, f)
-#
-#     return make_response(jsonify(
-#         {
-#             'message': 'Configuration created',
-#             'filename': filename,
-#             'config': data
-#         }, 201))
-
-@app.route('/schedule_v2', methods=['POST'])
+@app.route('/schedule', methods=['POST'])
 @token_required
-def schedule_training_v2(current_user):
+def schedule_training(current_user):
     data = request.get_json()
-
-    configuration = Configuration(data)
 
     all_required_fields, response_message = all_required_config_fields(data)
     if not all_required_fields:
