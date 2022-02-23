@@ -3,7 +3,7 @@ from typing import List
 
 from sqlalchemy import desc
 
-from src.models import Algorithm, TrainingResults, Users, ConfigurationFile
+from src.models import Algorithm, TrainingResults, Users, ConfigurationFile, ConfigurationFileFactory
 from src.utils.configuration_file_gateway import ConfigurationFileGateway
 from src.utils.data_validators import ParserFactory
 
@@ -62,5 +62,6 @@ class ConfigurationFileRepository:
         configuration_files_data = configuration_file_gateway.get_all_configuration_files_data()
 
         return list(
-            map(lambda x: ConfigurationFile.from_dict(data=x, parser_factory=parser_factory), configuration_files_data)
+            map(lambda x: ConfigurationFileFactory.from_dict(data=x, parser_factory=parser_factory),
+                configuration_files_data)
         )
