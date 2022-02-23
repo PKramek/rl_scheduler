@@ -33,8 +33,9 @@ class ConfigurationFileGateway(ABC):
 class JsonConfigurationFileGateway(ConfigurationFileGateway):
 
     def save(self, configuration_file: ConfigurationFile) -> Dict:
+        directory = Constants.RL_CONFIGURATIONS
         filename = self._get_configuration_file_name(configuration_file)
-        abs_path = self._get_configuration_dir_absolute_path(filename)
+        abs_path = self._get_configuration_dir_absolute_path(filename, directory)
 
         configuration_file_as_dict = configuration_file.to_dict()
 
