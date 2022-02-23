@@ -1,4 +1,3 @@
-import json
 import os
 import random
 import string
@@ -6,8 +5,6 @@ from datetime import datetime
 from typing import Dict, Tuple, List
 
 from src import Constants
-from src.models import TrainingResults
-from src.repository import AlgorithmRepository
 from src.utils.data_validators import ParserFactory
 
 
@@ -132,14 +129,14 @@ def get_current_time_as_string() -> str:
     return datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
 
 
-# TODO move this function to TrainingResults
-def training_results_to_dict(training_results: TrainingResults):
-    return {
-        "result_id": training_results.result_id,
-        "best_mean_result": training_results.best_mean_result,
-        "results_subdirectory": training_results.results_subdirectory,
-        "environment": training_results.environment,
-        "configuration": json.loads(training_results.algorithm_config),
-        "date": training_results.date,
-        "algorithm": AlgorithmRepository.get_algorithm_by_id(training_results.algorithm).name
-    }
+# # TODO move this function to TrainingResults
+# def training_results_to_dict(training_results):
+#     return {
+#         "result_id": training_results.result_id,
+#         "best_mean_result": training_results.best_mean_result,
+#         "results_subdirectory": training_results.results_subdirectory,
+#         "environment": training_results.environment,
+#         "configuration": json.loads(training_results.algorithm_config),
+#         "date": training_results.date,
+#         "algorithm": AlgorithmRepository.get_algorithm_by_id(training_results.algorithm).name
+#     }

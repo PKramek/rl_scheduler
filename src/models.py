@@ -1,3 +1,4 @@
+import json
 from abc import ABC, abstractmethod
 from typing import Dict
 
@@ -5,7 +6,7 @@ from sqlalchemy import ForeignKey
 
 from src import db, Constants
 from src.utils.data_validators import ParserFactory
-from src.utils.exceptions import NotValidAlgorithmConfigException, \
+from src.exceptions import NotValidAlgorithmConfigException, \
     NotAllRequiredConfigurationFields, UnknownAlgorithmException
 from src.utils.utils import get_args_as_list_of_strings, generate_random_id
 
@@ -38,6 +39,18 @@ class TrainingResults(db.Model):
                 algorithm={self.algorithm}
                 )>"""
 
+    # TODO fix this method
+    def to_dict(self):
+        return {
+            "result_id": self.result_id,
+            "best_mean_result": self.best_mean_result,
+            "results_subdirectory": self.results_subdirectory,
+            "environment": self.environment,
+            "configuration": json.loads(self.algorithm_config),
+            "date": self.date,
+            "algorithm": self.algorithm.name
+        }
+
 
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -59,12 +72,12 @@ class ConfigurationFile(ABC):
 
         self.algorithm_config = algorithm_config
 
-    @staticmethod
-    def from_dict(data: Dict, parser_factory: ParserFactory) -> 'ConfigurationFile':
-        if not Constants.REQUIRED_CONFIG_FIELDS != set(data.keys()):
+    @classmethod
+    def from_dict(cls, data: Dict, parser_factory: ParserFactory) -> 'ConfigurationFile':
+        if Constants.REQUIRED_CONFIG_FIELDS != set(data.keys()):
             raise NotAllRequiredConfigurationFields(f"Config must have fields: {Constants.REQUIRED_CONFIG_FIELDS}")
 
-        configuration_file = ConfigurationFile(
+        configuration_file = cls(
             data["algorithm"], data["algorithm_config"], parser_factory
         )
 
@@ -125,18 +138,19 @@ class AcerAceracConfigurationFile(ConfigurationFile):
 
         self._algorithm = algorithm
 
-    # TODO test if it works
     @ConfigurationFile.algorithm_config.setter
     def algorithm_config(self, config: Dict):
         config = self._add_random_experiment_name(config)
 
-        return super(AcerAceracConfigurationFile, self).algorithm_config(config)
+        super(__class__, self.__class__).algorithm_config.__set__(self, config)
 
     @staticmethod
     def _add_random_experiment_name(algorithm_config: Dict) -> Dict:
         if "experiment_name" not in algorithm_config.keys():
             random_id = generate_random_id()
             algorithm_config['experiment_name'] = random_id
+
+        return algorithm_config
 
     def _get_environment_name_key(self):
         return 'env_name'

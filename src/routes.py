@@ -9,11 +9,11 @@ from src.repository import AlgorithmRepository, TrainingResultsRepository, Users
 from src.utils.authorization import Auth, token_required
 from src.utils.configuration_file_gateway import ConfigurationFileGatewayFactory
 from src.utils.data_validators import ParserFactory
-from src.utils.exceptions import NotAllRequiredConfigurationFields, UnknownAlgorithmException, \
+from src.exceptions import NotAllRequiredConfigurationFields, UnknownAlgorithmException, \
     NotValidAlgorithmConfigException
 from src.utils.utils import get_configuration_file_name, get_configuration_absolute_path, \
     get_all_files_with_extension_in_directory, all_required_config_fields, check_algorithm_config, \
-    add_utility_config_extensions, training_results_to_dict
+    add_utility_config_extensions
 
 
 @app.route('/login', methods=['POST', 'GET'])
@@ -145,7 +145,7 @@ def get_all_processing_runs(current_user):
 def get_all_results(current_user):
     all_training_results = TrainingResultsRepository.get_all_results()
 
-    results = [training_results_to_dict(result) for result in all_training_results]
+    results = [result.to_dict() for result in all_training_results]
     return make_response(jsonify({"All results": results}), 200)
 
 
@@ -154,7 +154,7 @@ def get_all_results(current_user):
 def get_results_for_environment(current_user, environment):
     results_for_environment = TrainingResultsRepository.get_results_for_environment(environment)
 
-    results_as_dicts = [training_results_to_dict(result) for result in results_for_environment]
+    results_as_dicts = [result.to_dict() for result in results_for_environment]
     return make_response(jsonify({f"Results for {environment} environment": results_as_dicts}), 200)
 
 
@@ -167,5 +167,5 @@ def get_results_for_algorithm(current_user, algorithm):
     algorithm_id = AlgorithmRepository.get_algorithm_by_name(algorithm).id
     results_for_algorithm = TrainingResultsRepository.get_results_for_algorithm(algorithm_id)
 
-    results = [training_results_to_dict(result) for result in results_for_algorithm]
+    results = [result.to_dict() for result in results_for_algorithm]
     return make_response(jsonify({f"Results for {algorithm} algorithm": results}), 200)
