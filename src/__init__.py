@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
-from src.utils.constants import Constants
+from src.constants import Constants
 
 app = Flask(__name__)
 

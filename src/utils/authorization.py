@@ -6,7 +6,7 @@ from flask import request, make_response, jsonify
 
 from src import app
 from src.repository import UsersRepository
-from src.utils.constants import Constants
+from src.constants import Constants
 
 
 class Auth:

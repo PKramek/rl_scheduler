@@ -1,8 +1,11 @@
 from functools import lru_cache
+from typing import List, Dict
 
 from sqlalchemy import desc
 
-from src.models import Algorithm, TrainingResults, Users
+from src.configuration_file_gateway import ConfigurationFileGateway
+from src.models import Algorithm, TrainingResults, Users, ConfigurationFile, ConfigurationFileFactory
+from src.utils.data_validators import ParserFactory
 
 
 class UsersRepository:
@@ -45,3 +48,57 @@ class TrainingResultsRepository:
     def get_results_for_environment(environment: str):
         return TrainingResults.query.filter(TrainingResults.environment == environment).order_by(
             desc(TrainingResults.best_mean_result)).all()
+
+
+class ConfigurationFileRepository:
+
+    @staticmethod
+    def save(configuration_file: ConfigurationFile, configuration_file_gateway: ConfigurationFileGateway) -> Dict:
+        metadata = configuration_file_gateway.save(configuration_file)
+
+        return metadata
+
+    @staticmethod
+    def get_all_unprocessed_configuration_files(configuration_file_gateway: ConfigurationFileGateway,
+                                                parser_factory: ParserFactory) -> List[ConfigurationFile]:
+        configuration_files_data = configuration_file_gateway.get_all_unprocessed_configuration_files_data()
+
+        return ConfigurationFileRepository._map_list_of_dicts_to_configuration_files(
+            configuration_files_data, parser_factory
+        )
+
+    @staticmethod
+    def get_all_processing_configuration_files(configuration_file_gateway: ConfigurationFileGateway,
+                                               parser_factory: ParserFactory) -> List[ConfigurationFile]:
+        configuration_files_data = configuration_file_gateway.get_all_processing_configuration_files_data()
+
+        return ConfigurationFileRepository._map_list_of_dicts_to_configuration_files(
+            configuration_files_data, parser_factory
+        )
+
+    @staticmethod
+    def get_all_done_configuration_files(configuration_file_gateway: ConfigurationFileGateway,
+                                         parser_factory: ParserFactory) -> List[ConfigurationFile]:
+        configuration_files_data = configuration_file_gateway.get_all_done_configuration_files_data()
+
+        return ConfigurationFileRepository._map_list_of_dicts_to_configuration_files(
+            configuration_files_data, parser_factory
+        )
+
+    @staticmethod
+    def get_all_failed_configuration_files(configuration_file_gateway: ConfigurationFileGateway,
+                                           parser_factory: ParserFactory) -> List[ConfigurationFile]:
+        configuration_files_data = configuration_file_gateway.get_all_failed_configuration_files_data()
+
+        return ConfigurationFileRepository._map_list_of_dicts_to_configuration_files(
+            configuration_files_data, parser_factory
+        )
+
+    @staticmethod
+    def _map_list_of_dicts_to_configuration_files(configuration_files_data: List[Dict],
+                                                  parser_factory: ParserFactory
+                                                  ) -> List[ConfigurationFile]:
+        return list(
+            map(lambda x: ConfigurationFileFactory.from_dict(data=x, parser_factory=parser_factory),
+                configuration_files_data)
+        )
