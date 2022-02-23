@@ -5,7 +5,7 @@ from sqlalchemy import ForeignKey
 
 from src import db, Constants
 from src.utils.data_validators import ParserFactory
-from src.utils.exceptions import NotValidAlgorithmException, \
+from src.utils.exceptions import NotValidAlgorithmConfigException, \
     NotAllRequiredConfigurationFields, UnknownAlgorithmException
 from src.utils.utils import get_args_as_list_of_strings, generate_random_id
 
@@ -102,7 +102,7 @@ class ConfigurationFile(ABC):
         parser.parse_args(config_as_list)
 
         if parser.error_message:
-            raise NotValidAlgorithmException(parser.error_message)
+            raise NotValidAlgorithmConfigException(parser.error_message)
 
         self._algorithm_config = config
 

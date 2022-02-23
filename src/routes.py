@@ -4,8 +4,13 @@ from flask import request, make_response, jsonify
 from werkzeug.security import check_password_hash
 
 from src import app, Constants
-from src.repository import AlgorithmRepository, TrainingResultsRepository, UsersRepository
+from src.models import ConfigurationFileFactory
+from src.repository import AlgorithmRepository, TrainingResultsRepository, UsersRepository, ConfigurationFileRepository
 from src.utils.authorization import Auth, token_required
+from src.utils.configuration_file_gateway import ConfigurationFileGatewayFactory
+from src.utils.data_validators import ParserFactory
+from src.utils.exceptions import NotAllRequiredConfigurationFields, UnknownAlgorithmException, \
+    NotValidAlgorithmConfigException
 from src.utils.utils import get_configuration_file_name, get_configuration_absolute_path, \
     get_all_files_with_extension_in_directory, all_required_config_fields, check_algorithm_config, \
     add_utility_config_extensions, training_results_to_dict
@@ -63,6 +68,37 @@ def schedule_training(current_user):
             'filename': filename,
             'config': data
         }, 201))
+
+
+@app.route('/schedule_v2', methods=['POST'])
+@token_required
+def schedule_training_v2(current_user):
+    data = request.get_json()
+    parser_factory = ParserFactory()
+
+    error = None
+    error_code = 418
+
+    try:
+        configuration_file = ConfigurationFileFactory.from_dict(data, parser_factory)
+    except NotAllRequiredConfigurationFields:
+        error = f"Config must have fields: {Constants.REQUIRED_CONFIG_FIELDS}"
+    except UnknownAlgorithmException:
+        error = f"Algorithm must be one of values: {Constants.KNOWN_ALGORITHMS}"
+    except NotValidAlgorithmConfigException as e:
+        error = str(e)
+
+    if error is not None:
+        return make_response(
+            jsonify({'Message': error}), error_code
+        )
+
+    metadata = ConfigurationFileRepository.save(
+        configuration_file,
+        ConfigurationFileGatewayFactory.get_default_gateway()
+    )
+
+    return make_response(jsonify({'message': metadata}, 201))
 
 
 @app.route('/scheduled', methods=['GET'])

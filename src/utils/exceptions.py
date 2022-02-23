@@ -2,7 +2,7 @@ class UnknownAlgorithmException(Exception):
     pass
 
 
-class NotValidAlgorithmException(Exception):
+class NotValidAlgorithmConfigException(Exception):
     pass
 
 

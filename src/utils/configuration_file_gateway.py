@@ -10,7 +10,7 @@ from src.utils.utils import get_current_time_as_string, generate_random_id, get_
 class ConfigurationFileGateway(ABC):
 
     @abstractmethod
-    def save(self, configuration_file: ConfigurationFile):
+    def save(self, configuration_file: ConfigurationFile) -> Dict:
         pass
 
     @abstractmethod
@@ -19,7 +19,7 @@ class ConfigurationFileGateway(ABC):
 
 
 class JsonConfigurationFileGateway(ConfigurationFileGateway):
-    def save(self, configuration_file: ConfigurationFile):
+    def save(self, configuration_file: ConfigurationFile) -> Dict:
         filename = self._get_configuration_file_name(configuration_file)
         abs_path = self._get_configuration_dir_absolute_path(filename)
 
@@ -27,6 +27,11 @@ class JsonConfigurationFileGateway(ConfigurationFileGateway):
 
         with open(abs_path, 'x') as json_file:
             json.dump(configuration_file_as_dict, json_file)
+
+        return {
+            'filename': filename,
+            'configuration': configuration_file_as_dict
+        }
 
     def get_all_configuration_files_data(self) -> List[Dict]:
         json_files = self._get_all_files_with_json_extension_in_directory()
@@ -63,3 +68,24 @@ class JsonConfigurationFileGateway(ConfigurationFileGateway):
     @staticmethod
     def _get_all_files_with_json_extension_in_directory():
         return get_all_files_with_extension_in_directory(Constants.RL_CONFIGURATIONS, '.json')
+
+
+class ConfigurationFileGatewayFactory:
+    CONFIGURATION_FILE_GATEWAY_MAPPING = {
+        'json': JsonConfigurationFileGateway,
+        'default': JsonConfigurationFileGateway
+    }
+
+    @staticmethod
+    def get_gateway(gateway_type: str) -> ConfigurationFileGateway:
+        configuration_file_gateway_class = ConfigurationFileGatewayFactory.CONFIGURATION_FILE_GATEWAY_MAPPING.get(
+            gateway_type, None)
+
+        if configuration_file_gateway_class is None:
+            raise ValueError(f"Unknown gateway type: {gateway_type}")
+
+        return configuration_file_gateway_class()
+
+    @staticmethod
+    def get_default_gateway() -> ConfigurationFileGateway:
+        return ConfigurationFileGatewayFactory.get_gateway('default')

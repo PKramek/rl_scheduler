@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import List
+from typing import List, Dict
 
 from sqlalchemy import desc
 
@@ -53,8 +53,10 @@ class TrainingResultsRepository:
 class ConfigurationFileRepository:
 
     @staticmethod
-    def save(configuration_file: ConfigurationFile, configuration_file_gateway: ConfigurationFileGateway):
-        configuration_file_gateway.save(configuration_file)
+    def save(configuration_file: ConfigurationFile, configuration_file_gateway: ConfigurationFileGateway) -> Dict:
+        metadata = configuration_file_gateway.save(configuration_file)
+
+        return metadata
 
     @staticmethod
     def get_all_configuration_files(configuration_file_gateway: ConfigurationFileGateway,
