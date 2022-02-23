@@ -1,19 +1,14 @@
-import json
-
 from flask import request, make_response, jsonify
 from werkzeug.security import check_password_hash
 
 from src import app, Constants
+from src.configuration_file_gateway import ConfigurationFileGatewayFactory
+from src.exceptions import NotAllRequiredConfigurationFields, UnknownAlgorithmException, \
+    NotValidAlgorithmConfigException
 from src.models import ConfigurationFileFactory
 from src.repository import AlgorithmRepository, TrainingResultsRepository, UsersRepository, ConfigurationFileRepository
 from src.utils.authorization import Auth, token_required
-from src.utils.configuration_file_gateway import ConfigurationFileGatewayFactory
 from src.utils.data_validators import ParserFactory
-from src.exceptions import NotAllRequiredConfigurationFields, UnknownAlgorithmException, \
-    NotValidAlgorithmConfigException
-from src.utils.utils import get_configuration_file_name, get_configuration_absolute_path, \
-    get_all_files_with_extension_in_directory, all_required_config_fields, check_algorithm_config, \
-    add_utility_config_extensions
 
 
 @app.route('/login', methods=['POST', 'GET'])
@@ -38,41 +33,6 @@ def login_user():
 @app.route('/schedule', methods=['POST'])
 @token_required
 def schedule_training(current_user):
-    data = request.get_json()
-
-    all_required_fields, response_message = all_required_config_fields(data)
-    if not all_required_fields:
-        return make_response(
-            jsonify({'Message': response_message}), 418
-        )
-
-    data = add_utility_config_extensions(data)
-
-    is_data_correct, response_message = check_algorithm_config(data)
-
-    if not is_data_correct:
-        return make_response(
-            jsonify({'Message': response_message}), 418
-        )
-
-    filename = get_configuration_file_name(data)
-    path = get_configuration_absolute_path(filename)
-
-    app.logger.info(f'Configuration will be saved in file: {path}')
-    with open(path, 'x') as f:
-        json.dump(data, f)
-
-    return make_response(jsonify(
-        {
-            'message': 'Configuration created',
-            'filename': filename,
-            'config': data
-        }, 201))
-
-
-@app.route('/schedule_v2', methods=['POST'])
-@token_required
-def schedule_training_v2(current_user):
     data = request.get_json()
     parser_factory = ParserFactory()
 
@@ -103,41 +63,74 @@ def schedule_training_v2(current_user):
 
 @app.route('/scheduled', methods=['GET'])
 @token_required
-def get_all_not_run_configurations(current_user):
-    configurations_dir = Constants.RL_CONFIGURATIONS
-    json_files = get_all_files_with_extension_in_directory(configurations_dir, '.json')
+def get_all_not_processed_configuration_files(current_user):
+    configuration_file_gateway = ConfigurationFileGatewayFactory.get_default_gateway()
+    parser_factory = ParserFactory()
 
-    return make_response(jsonify({"scheduled trainings": json_files}), 200)
+    scheduled_conf_files = ConfigurationFileRepository.get_all_unprocessed_configuration_files(
+        configuration_file_gateway,
+        parser_factory
+    )
+
+    results = [result.to_dict() for result in scheduled_conf_files]
+    return make_response(jsonify({
+        "Number of scheduled configuration files ": len(results),
+        "Scheduled configuration files ": results
+    }), 200)
 
 
 @app.route('/failed', methods=['GET'])
 @token_required
 def get_all_failed_runs(current_user):
-    configurations_dir = Constants.RL_CONFIGURATIONS
-    error_directory = f"{configurations_dir}/{Constants.RL_CONFIGURATIONS_FAILED_SUBDIRECTORY}"
-    json_files = get_all_files_with_extension_in_directory(error_directory, '.json')
+    configuration_file_gateway = ConfigurationFileGatewayFactory.get_default_gateway()
+    parser_factory = ParserFactory()
 
-    return make_response(jsonify({"Failed trainings": json_files}), 200)
+    scheduled_conf_files = ConfigurationFileRepository.get_all_failed_configuration_files(
+        configuration_file_gateway,
+        parser_factory
+    )
+
+    results = [result.to_dict() for result in scheduled_conf_files]
+    return make_response(jsonify({
+        "Number of failed configuration files ": len(results),
+        "Failed files ": results
+    }), 200)
 
 
 @app.route('/done', methods=['GET'])
 @token_required
 def get_all_done_runs(current_user):
-    configurations_dir = Constants.RL_CONFIGURATIONS
-    done_directory = f"{configurations_dir}/{Constants.RL_CONFIGURATIONS_DONE_SUBDIRECTORY}"
-    json_files = get_all_files_with_extension_in_directory(done_directory, '.json')
+    configuration_file_gateway = ConfigurationFileGatewayFactory.get_default_gateway()
+    parser_factory = ParserFactory()
 
-    return make_response(jsonify({"Done trainings": json_files}), 200)
+    scheduled_conf_files = ConfigurationFileRepository.get_all_done_configuration_files(
+        configuration_file_gateway,
+        parser_factory
+    )
+
+    results = [result.to_dict() for result in scheduled_conf_files]
+    return make_response(jsonify({
+        "Number of processed configuration files ": len(results),
+        "Processed files ": results
+    }), 200)
 
 
 @app.route('/processing', methods=['GET'])
 @token_required
 def get_all_processing_runs(current_user):
-    configurations_dir = Constants.RL_CONFIGURATIONS
-    processing_directory = f"{configurations_dir}/{Constants.RL_CONFIGURATIONS_PROCESSING_SUBDIRECTORY}"
-    json_files = get_all_files_with_extension_in_directory(processing_directory, '.json')
+    configuration_file_gateway = ConfigurationFileGatewayFactory.get_default_gateway()
+    parser_factory = ParserFactory()
 
-    return make_response(jsonify({"Processing trainings": json_files}), 200)
+    scheduled_conf_files = ConfigurationFileRepository.get_all_processing_configuration_files(
+        configuration_file_gateway,
+        parser_factory
+    )
+
+    results = [result.to_dict() for result in scheduled_conf_files]
+    return make_response(jsonify({
+        "Number of currently processed configuration files ": len(results),
+        "Processing files ": results
+    }), 200)
 
 
 @app.route('/results', methods=['GET'])

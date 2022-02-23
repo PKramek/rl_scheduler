@@ -3,8 +3,8 @@ from typing import List, Dict
 
 from sqlalchemy import desc
 
+from src.configuration_file_gateway import ConfigurationFileGateway
 from src.models import Algorithm, TrainingResults, Users, ConfigurationFile, ConfigurationFileFactory
-from src.utils.configuration_file_gateway import ConfigurationFileGateway
 from src.utils.data_validators import ParserFactory
 
 
@@ -59,10 +59,45 @@ class ConfigurationFileRepository:
         return metadata
 
     @staticmethod
-    def get_all_configuration_files(configuration_file_gateway: ConfigurationFileGateway,
-                                    parser_factory=ParserFactory()) -> List[ConfigurationFile]:
-        configuration_files_data = configuration_file_gateway.get_all_configuration_files_data()
+    def get_all_unprocessed_configuration_files(configuration_file_gateway: ConfigurationFileGateway,
+                                                parser_factory: ParserFactory) -> List[ConfigurationFile]:
+        configuration_files_data = configuration_file_gateway.get_all_unprocessed_configuration_files_data()
 
+        return ConfigurationFileRepository._map_list_of_dicts_to_configuration_files(
+            configuration_files_data, parser_factory
+        )
+
+    @staticmethod
+    def get_all_processing_configuration_files(configuration_file_gateway: ConfigurationFileGateway,
+                                               parser_factory: ParserFactory) -> List[ConfigurationFile]:
+        configuration_files_data = configuration_file_gateway.get_all_processing_configuration_files_data()
+
+        return ConfigurationFileRepository._map_list_of_dicts_to_configuration_files(
+            configuration_files_data, parser_factory
+        )
+
+    @staticmethod
+    def get_all_done_configuration_files(configuration_file_gateway: ConfigurationFileGateway,
+                                         parser_factory: ParserFactory) -> List[ConfigurationFile]:
+        configuration_files_data = configuration_file_gateway.get_all_done_configuration_files_data()
+
+        return ConfigurationFileRepository._map_list_of_dicts_to_configuration_files(
+            configuration_files_data, parser_factory
+        )
+
+    @staticmethod
+    def get_all_failed_configuration_files(configuration_file_gateway: ConfigurationFileGateway,
+                                           parser_factory: ParserFactory) -> List[ConfigurationFile]:
+        configuration_files_data = configuration_file_gateway.get_all_failed_configuration_files_data()
+
+        return ConfigurationFileRepository._map_list_of_dicts_to_configuration_files(
+            configuration_files_data, parser_factory
+        )
+
+    @staticmethod
+    def _map_list_of_dicts_to_configuration_files(configuration_files_data: List[Dict],
+                                                  parser_factory: ParserFactory
+                                                  ) -> List[ConfigurationFile]:
         return list(
             map(lambda x: ConfigurationFileFactory.from_dict(data=x, parser_factory=parser_factory),
                 configuration_files_data)

@@ -14,11 +14,24 @@ class ConfigurationFileGateway(ABC):
         pass
 
     @abstractmethod
-    def get_all_configuration_files_data(self) -> List[Dict]:
+    def get_all_unprocessed_configuration_files_data(self) -> List[Dict]:
+        pass
+
+    @abstractmethod
+    def get_all_processing_configuration_files_data(self) -> List[Dict]:
+        pass
+
+    @abstractmethod
+    def get_all_done_configuration_files_data(self) -> List[Dict]:
+        pass
+
+    @abstractmethod
+    def get_all_failed_configuration_files_data(self) -> List[Dict]:
         pass
 
 
 class JsonConfigurationFileGateway(ConfigurationFileGateway):
+
     def save(self, configuration_file: ConfigurationFile) -> Dict:
         filename = self._get_configuration_file_name(configuration_file)
         abs_path = self._get_configuration_dir_absolute_path(filename)
@@ -33,13 +46,35 @@ class JsonConfigurationFileGateway(ConfigurationFileGateway):
             'configuration': configuration_file_as_dict
         }
 
-    def get_all_configuration_files_data(self) -> List[Dict]:
-        json_files = self._get_all_files_with_json_extension_in_directory()
+    def get_all_unprocessed_configuration_files_data(self) -> List[Dict]:
+        directory = Constants.RL_CONFIGURATIONS
+
+        return self._get_all_configuration_files_data_in_directory(directory)
+
+    def get_all_processing_configuration_files_data(self) -> List[Dict]:
+        directory = f"{Constants.RL_CONFIGURATIONS}/{Constants.RL_CONFIGURATIONS_PROCESSING_SUBDIRECTORY}"
+
+        return self._get_all_configuration_files_data_in_directory(directory)
+
+    def get_all_done_configuration_files_data(self) -> List[Dict]:
+        directory = f"{Constants.RL_CONFIGURATIONS}/{Constants.RL_CONFIGURATIONS_DONE_SUBDIRECTORY}"
+
+        return self._get_all_configuration_files_data_in_directory(directory)
+
+    def get_all_failed_configuration_files_data(self) -> List[Dict]:
+        directory = f"{Constants.RL_CONFIGURATIONS}/{Constants.RL_CONFIGURATIONS_FAILED_SUBDIRECTORY}"
+
+        return self._get_all_configuration_files_data_in_directory(directory)
+
+    def _get_all_configuration_files_data_in_directory(self, directory: str) -> List[Dict]:
+        assert isinstance(directory, str), "directory parameter must be a string"
+
+        json_files = self._get_all_files_with_json_extension_in_directory(directory)
 
         configuration_files_data = []
 
         for file in json_files:
-            asb_path = self._get_configuration_dir_absolute_path(file)
+            asb_path = self._get_configuration_dir_absolute_path(file, directory)
             with open(asb_path, 'r') as f:
                 # TODO add metadata dict field
                 configuration_files_data.append(json.load(f))
@@ -57,17 +92,17 @@ class JsonConfigurationFileGateway(ConfigurationFileGateway):
         return f"{env_name}_{configuration_file.algorithm}_{random_id}_{timestamp}.json"
 
     @staticmethod
-    def _get_configuration_dir_absolute_path(filename):
+    def _get_configuration_dir_absolute_path(filename: str, directory: str):
         assert isinstance(filename, str), "filename parameter must be a string"
+        assert isinstance(directory, str), "directory parameter must be a string"
 
-        configurations_dir = Constants.RL_CONFIGURATIONS
-        path = f"{configurations_dir}/{filename}"
+        path = f"{directory}/{filename}"
 
         return path
 
     @staticmethod
-    def _get_all_files_with_json_extension_in_directory():
-        return get_all_files_with_extension_in_directory(Constants.RL_CONFIGURATIONS, '.json')
+    def _get_all_files_with_json_extension_in_directory(directory: str):
+        return get_all_files_with_extension_in_directory(directory, '.json')
 
 
 class ConfigurationFileGatewayFactory:

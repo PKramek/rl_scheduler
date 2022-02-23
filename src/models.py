@@ -5,9 +5,9 @@ from typing import Dict
 from sqlalchemy import ForeignKey
 
 from src import db, Constants
-from src.utils.data_validators import ParserFactory
 from src.exceptions import NotValidAlgorithmConfigException, \
     NotAllRequiredConfigurationFields, UnknownAlgorithmException
+from src.utils.data_validators import ParserFactory
 from src.utils.utils import get_args_as_list_of_strings, generate_random_id
 
 
@@ -41,7 +41,6 @@ class TrainingResults(db.Model):
                 algorithm={self.algorithm}
                 )>"""
 
-    # TODO fix this method
     def to_dict(self):
         return {
             "result_id": self.result_id,
