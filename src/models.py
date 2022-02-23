@@ -16,6 +16,8 @@ class Algorithm(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, unique=True)
 
+    training_results = db.relationship("TrainingResults", backref="algorithm_object")
+
     def __repr__(self):
         return f"<Algorithm(name={self.name})>"
 
@@ -48,7 +50,7 @@ class TrainingResults(db.Model):
             "environment": self.environment,
             "configuration": json.loads(self.algorithm_config),
             "date": self.date,
-            "algorithm": self.algorithm.name
+            "algorithm": self.algorithm_object.name
         }
 
 
