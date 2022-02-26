@@ -157,6 +157,16 @@ class AcerAceracConfigurationFile(ConfigurationFile):
         return 'env_name'
 
 
+class FastAcerConfigurationFile(AcerAceracConfigurationFile):
+
+    @ConfigurationFile.algorithm.setter
+    def algorithm(self, algorithm: str):
+        if algorithm not in {'fastacer'}:
+            UnknownAlgorithmException(f"Algorithm must be one of values: {Constants.KNOWN_ALGORITHMS}, not {algorithm}")
+
+        self._algorithm = algorithm
+
+
 class OtherAlgorithmsConfigurationFile(ConfigurationFile):
     @ConfigurationFile.algorithm.setter
     def algorithm(self, algorithm: str):
@@ -174,7 +184,8 @@ class ConfigurationFileFactory():
         'acer': AcerAceracConfigurationFile,
         'acerac': AcerAceracConfigurationFile,
         'PPO': OtherAlgorithmsConfigurationFile,
-        'SAC': OtherAlgorithmsConfigurationFile
+        'SAC': OtherAlgorithmsConfigurationFile,
+        'fastacer': FastAcerConfigurationFile
     }
 
     @staticmethod
