@@ -193,11 +193,11 @@ class OtherAlgorithmsParser(ArgumentParserWithoutSystemExit):
                           default=0.2)
 
 
-class FastAcerParser(ArgumentParserWithoutSystemExit):
+class FastAcerAceraxParser(ArgumentParserWithoutSystemExit):
     def __init__(self, *args, **kwargs):
-        super(FastAcerParser, self).__init__(*args, **kwargs)
+        super(FastAcerAceraxParser, self).__init__(*args, **kwargs)
 
-        algorithms = {'fastacer'}
+        algorithms = {'fastacer', 'fastacerax'}
         autocorrelated_actors = {
             'autocor',
             'autocor+u',
@@ -321,7 +321,8 @@ class ParserFactory:
         'acerac': AcerAceracParser,
         'PPO': OtherAlgorithmsParser,
         'SAC': OtherAlgorithmsParser,
-        'fastacer': FastAcerParser
+        'fastacer': FastAcerAceraxParser,
+        'fastacerax': FastAcerAceraxParser
     }
 
     @staticmethod
