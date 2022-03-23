@@ -33,6 +33,8 @@ class AcerAceracParser(ArgumentParserWithoutSystemExit):
         self.add_argument('--algo', type=str, help='Algorithm to be used', default="acer",
                           choices=acer_acer_algos)
         self.add_argument('--env_name', type=str, help='OpenAI Gym environment name', default="CartPole-v0")
+        self.add_argument('--eval_env_name', type=str, help='Name of the OpenAI Gym environment used for evaluation',
+                          default=None)
         self.add_argument('--gamma', type=float, help='discount factor', required=False, default=0.99)
         self.add_argument('--lam', type=float, help='lambda parameter', required=False, default=0.9)
         self.add_argument('--b', type=float, help='probability density truncation coefficient',
@@ -207,6 +209,8 @@ class FastAcerAceraxParser(ArgumentParserWithoutSystemExit):
         self.add_argument('--number', type=int)
         self.add_argument('--algo', type=str, help='Algorithm to be used', default="acer", choices=algorithms)
         self.add_argument('--env_name', type=str, help='OpenAI Gym environment name', default="CartPole-v0")
+        self.add_argument('--eval_env_name', type=str, help='Name of the OpenAI Gym environment used for evaluation',
+                          default=None)
         self.add_argument('--gamma', type=float, help='discount factor', required=False, default=0.99)
         self.add_argument('--lam', type=float, help='lambda parameter', required=False, default=0.9)
         self.add_argument('--b', type=float, help='probability density truncation coefficient',
